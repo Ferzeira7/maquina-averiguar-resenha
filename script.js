@@ -1,254 +1,271 @@
 
-const startButton = document.querySelector("#start-button");
-const soundButton = document.querySelector("#sound-button");
+const resultados = [
+  {
+    nome: "RESENHA CONFIRMADA",
+    min: 81,
+    max: 100,
+    descricao: "A máquina confirmou. Não questione a ciência.",
+  },
+  {
+    nome: "RESENHA ABSURDA",
+    min: 81,
+    max: 100,
+    descricao: "O nível de resenha ultrapassou todos os limites conhecidos.",
+  },
+  {
+    nome: "POSSÍVEL RESENHA",
+    min: 21,
+    max: 50,
+    descricao: "Existem indícios, mas precisamos investigar.",
+  },
+  {
+    nome: "RESENHA EM ANÁLISE",
+    min: 21,
+    max: 50,
+    descricao: "A máquina está tentando entender o que acabou de acontecer.",
+  },
+  {
+    nome: "NENHUMA RESENHA",
+    min: 0,
+    max: 20,
+    descricao: "Infelizmente, não encontramos resenha suficiente.",
+  },
+  {
+    nome: "RESENHA INTERDIMENSIONAL",
+    min: 81,
+    max: 100,
+    descricao: "Isso veio de outra dimensão. Desligue o computador.",
+  },
+  {
+    nome: "DEU RUIM NO SISTEMA",
+    min: 51,
+    max: 100,
+    descricao: "Os circuitos não estavam preparados para isso.",
+  },
+  {
+    nome: "CHAMA O RESPONSÁVEL",
+    min: 51,
+    max: 95,
+    descricao: "Ninguém sabe o que aconteceu. Chame alguém.",
+  },
+];
 
-const statusText = document.querySelector("#status");
-const verdictTitle = document.querySelector("#verdict");
-const description = document.querySelector("#description");
-const percentText = document.querySelector("#percent");
-const meterFill = document.querySelector("#meter-fill");
-const machineMessage = document.querySelector("#machine-message");
-const resenhaImage = document.querySelector("#resenha-image");
-
-// Áudios organizados do menor para o maior nível de resenha.
 const audios = {
-    baixa: new Audio("audios/musica-de-ninar.mp3"),
-    media: new Audio("audios/acorda-caze.mp3"),
-    alta: new Audio("audios/bandido-que-67-resenha.mp3"),
-    absurda: new Audio("audios/sirene-alarme-bom-para-acordar.mp3")
+  baixa: new Audio("./audios/musica-de-ninar.mp3"),
+  media: new Audio("./audios/acorda-caze.mp3"),
+  alta: new Audio("./audios/bandido-que-67-resenha.mp3"),
+  absurda: new Audio("./audios/sirene-alarme-bom-para-acordar.mp3"),
 };
 
-Object.values(audios).forEach(audio => {
-    audio.preload = "auto";
-    audio.volume = 0.85;
+Object.values(audios).forEach((audio) => {
+  audio.preload = "auto";
+  audio.volume = 0.85;
 });
 
 let somAtivado = true;
 let audioAtual = null;
+let analisando = false;
 
-const verdicts = [
-    {
-        title: "RESENHA<br>CONFIRMADA",
-        description: "A situação ultrapassou o limite do bom senso. Chame uma testemunha e esconda os documentos.",
-        min: 81,
-        max: 100
-    },
-    {
-        title: "RESENHA<br>ABSURDA",
-        description: "Detectamos 3 kg de palhaçada por metro quadrado. A ciência pediu demissão.",
-        min: 81,
-        max: 100
-    },
-    {
-        title: "POSSÍVEL<br>RESENHA",
-        description: "Há indícios fortes, porém o suspeito disse 'confia' e saiu correndo.",
-        min: 21,
-        max: 50
-    },
-    {
-        title: "RESENHA<br>EM ANÁLISE",
-        description: "A máquina está pensando. Não pressione o operador: ele também não sabe.",
-        min: 21,
-        max: 50
-    },
-    {
-        title: "NENHUMA<br>RESENHA",
-        description: "Por incrível que pareça, parece tudo normal. Isso é extremamente suspeito.",
-        min: 0,
-        max: 20
-    },
-    {
-        title: "RESENHA<br>INTERDIMENSIONAL",
-        description: "O acontecimento violou 4 leis da física e uma regra do grupo do WhatsApp.",
-        min: 81,
-        max: 100
-    },
-    {
-        title: "DEU RUIM<br>NO SISTEMA",
-        description: "O computador encontrou uma resenha tão grande que esqueceu a própria senha.",
-        min: 51,
-        max: 100
-    },
-    {
-        title: "CHAMA O<br>RESPONSÁVEL",
-        description: "A máquina recomenda que você finja que nunca esteve aqui.",
-        min: 51,
-        max: 95
-    }
-];
+const elemento = (id) => document.getElementById(id);
 
-const scanMessages = [
-    "Inicializando o detector de caô...",
-    "Consultando o departamento de fofoca...",
-    "Medindo a concentração de bagunça...",
-    "Verificando os arquivos confidenciais do grupo...",
-    "Perguntando para uma entidade especializada...",
-    "Calibrando o resenhômetro..."
-];
-
-function pickRandom(list) {
-    return list[Math.floor(Math.random() * list.length)];
-}
-
-// Para qualquer áudio que esteja tocando.
-function pararAudio() {
-    Object.values(audios).forEach(audio => {
-        audio.pause();
-        audio.currentTime = 0;
-    });
-
-    audioAtual = null;
-}
-
-// Seleciona a imagem de acordo com o percentual.
 function atualizarImagem(nivel) {
-    let imagem;
+  const imagem = elemento("resenha-image");
 
-    if (nivel <= 20) {
-        imagem = "imagens/resenha-baixa.jpg";
-    } else if (nivel <= 50) {
-        imagem = "imagens/resenha-media.gif";
-    } else if (nivel <= 80) {
-        imagem = "imagens/resenha-alta.gif";
-    } else {
-        imagem = "imagens/resenha-absurda.gif";
-    }
+  if (!imagem) return;
 
-    if (resenhaImage.getAttribute("src") !== imagem) {
-        resenhaImage.src = imagem;
-    }
+  if (nivel <= 20) {
+    imagem.src = "./Imagens/resenha-baixa.jpg";
+  } else if (nivel <= 50) {
+    imagem.src = "./Imagens/resenha-media.gif";
+  } else if (nivel <= 80) {
+    imagem.src = "./Imagens/resenha-alta.gif";
+  } else {
+    imagem.src = "./Imagens/resenha-absurda.gif";
+  }
+
+  imagem.onerror = () => {
+    console.error("Erro ao carregar imagem:", imagem.src);
+    imagem.alt = "Imagem não encontrada. Confira a pasta Imagens.";
+  };
+
+  imagem.alt = "Resultado da máquina de averiguar resenha";
 }
 
-// Escolhe e toca a trilha sonora do resultado.
+function pararAudios() {
+  Object.values(audios).forEach((audio) => {
+    audio.pause();
+    audio.currentTime = 0;
+  });
+
+  audioAtual = null;
+}
+
 function tocarAudioResenha(nivel) {
-    pararAudio();
+  pararAudios();
 
-    if (!somAtivado) return;
+  if (!somAtivado) return;
 
-    if (nivel <= 20) {
-        audioAtual = audios.baixa;
-    } else if (nivel <= 50) {
-        audioAtual = audios.media;
-    } else if (nivel <= 80) {
-        audioAtual = audios.alta;
-    } else {
-        audioAtual = audios.absurda;
-    }
+  if (nivel <= 20) {
+    audioAtual = audios.baixa;
+  } else if (nivel <= 50) {
+    audioAtual = audios.media;
+  } else if (nivel <= 80) {
+    audioAtual = audios.alta;
+  } else {
+    audioAtual = audios.absurda;
+  }
 
-    audioAtual.currentTime = 0;
-
-    audioAtual.play().catch(error => {
-        console.warn(
-            "Não foi possível reproduzir o áudio:",
-            error
-        );
-
-        machineMessage.textContent =
-            "Áudio bloqueado pelo navegador. Clique novamente para tentar.";
-    });
+  audioAtual.play().catch((erro) => {
+    console.warn("Não foi possível reproduzir o áudio:", erro);
+  });
 }
 
-function runAnalysis() {
-    if (startButton.disabled) return;
+function alternarSom() {
+  somAtivado = !somAtivado;
 
-    startButton.disabled = true;
+  const botaoSom = elemento("sound-button");
 
-    // Interrompe a música anterior e limpa o modo de loucura.
-    pararAudio();
-    document.body.classList.remove("loucura-total");
-    document.body.classList.add("scanning");
+  if (botaoSom) {
+    botaoSom.textContent = somAtivado
+      ? "🔊 SOM: LIGADO"
+      : "🔇 SOM: DESLIGADO";
+  }
 
-    statusText.textContent = "ANÁLISE EM ANDAMENTO";
-    verdictTitle.innerHTML = "AVERIGUANDO...";
-
-    description.textContent =
-        "Não desligue a máquina. Ou desligue. Ela não tem garantia.";
-
-    percentText.textContent = "...%";
-    meterFill.style.width = "0%";
-
-    machineMessage.textContent = pickRandom(scanMessages);
-
-    let progress = 0;
-
-    const progressTimer = setInterval(() => {
-        progress = Math.min(
-            progress + Math.floor(Math.random() * 17) + 8,
-            94
-        );
-
-        meterFill.style.width = `${progress}%`;
-        percentText.textContent = `${progress}%`;
-        machineMessage.textContent = pickRandom(scanMessages);
-    }, 160);
-
-    setTimeout(() => {
-        clearInterval(progressTimer);
-
-        const result = pickRandom(verdicts);
-
-        const score = Math.floor(
-            Math.random() * (result.max - result.min + 1)
-        ) + result.min;
-
-        meterFill.style.width = `${score}%`;
-        percentText.textContent = `${score}%`;
-
-        verdictTitle.innerHTML = result.title;
-        description.textContent = result.description;
-
-        atualizarImagem(score);
-
-        document.body.classList.remove("scanning");
-
-        if (score >= 81) {
-            document.body.classList.add("loucura-total");
-
-            statusText.textContent = "🚨 ALERTA DE RESENHA 🚨";
-
-            machineMessage.textContent =
-                "🚨 RESENHA ABSURDA DETECTADA. DEUS ABANDONOU O SISTEMA. 🚨";
-        } else {
-            document.body.classList.remove("loucura-total");
-
-            statusText.textContent = "VEREDITO EMITIDO";
-
-            machineMessage.textContent = pickRandom([
-                "A máquina falou. Não questione a máquina.",
-                "Averiguação concluída. A dignidade não foi encontrada.",
-                "Relatório salvo em lugar nenhum.",
-                "Obrigado por utilizar tecnologia duvidosa.",
-                "Você pode sair, mas a resenha vai junto."
-            ]);
-        }
-
-        // Toca a música correspondente ao percentual sorteado.
-        tocarAudioResenha(score);
-
-        startButton.disabled = false;
-
-    }, 2300);
+  if (!somAtivado) {
+    pararAudios();
+  }
 }
 
-startButton.addEventListener("click", runAnalysis);
+function escolherResultado(nivel) {
+  const possiveis = resultados.filter(
+    (resultado) =>
+      nivel >= resultado.min && nivel <= resultado.max
+  );
 
-// Liga ou desliga as trilhas sonoras.
-soundButton.textContent = "🔊 SOM: LIGADO";
-soundButton.setAttribute("aria-pressed", "true");
+  return possiveis[
+    Math.floor(Math.random() * possiveis.length)
+  ];
+}
 
-soundButton.addEventListener("click", () => {
-    somAtivado = !somAtivado;
+function atualizarInterface(nivel, resultado) {
+  const status = elemento("status");
+  const veredito = elemento("verdict");
+  const descricao = elemento("description");
+  const porcentagem = elemento("percent");
+  const barra = elemento("meter-fill");
+  const mensagem = elemento("machine-message");
 
-    soundButton.textContent = somAtivado
-        ? "🔊 SOM: LIGADO"
-        : "🔇 SOM: DESLIGADO";
+  if (status) status.textContent = "ANÁLISE CONCLUÍDA";
+  if (veredito) veredito.textContent = resultado.nome;
+  if (descricao) descricao.textContent = resultado.descricao;
+  if (porcentagem) porcentagem.textContent = `${nivel}%`;
 
-    soundButton.setAttribute(
-        "aria-pressed",
-        String(somAtivado)
-    );
+  if (barra) {
+    barra.style.width = `${nivel}%`;
+  }
 
-    if (!somAtivado) {
-        pararAudio();
+  if (mensagem) {
+    mensagem.textContent =
+      nivel >= 81
+        ? "🚨 RESENHA ABSURDA DETECTADA. DEUS ABANDONOU O SISTEMA. 🚨"
+        : "Análise finalizada. A máquina está sob controle... por enquanto.";
+  }
+
+  document.body.classList.toggle("loucura-total", nivel >= 81);
+
+  atualizarImagem(nivel);
+  tocarAudioResenha(nivel);
+}
+
+function averiguarResenha() {
+  if (analisando) return;
+
+  analisando = true;
+
+  const botao = elemento("start-button");
+  const status = elemento("status");
+  const veredito = elemento("verdict");
+  const descricao = elemento("description");
+  const porcentagem = elemento("percent");
+  const barra = elemento("meter-fill");
+  const mensagem = elemento("machine-message");
+
+  if (botao) {
+    botao.disabled = true;
+    botao.textContent = "ANALISANDO...";
+  }
+
+  pararAudios();
+  document.body.classList.remove("loucura-total");
+
+  if (status) status.textContent = "PROCESSANDO DADOS...";
+  if (veredito) veredito.textContent = "AGUARDE...";
+  if (descricao) {
+    descricao.textContent = "A máquina está investigando a resenha...";
+  }
+  if (porcentagem) porcentagem.textContent = "???%";
+  if (barra) barra.style.width = "0%";
+  if (mensagem) mensagem.textContent = "NÃO DESLIGUE O EQUIPAMENTO.";
+
+  // O navegador precisa de uma interação do usuário para liberar áudio.
+  if (somAtivado) {
+    const audioDesbloqueio = audios.baixa;
+    audioDesbloqueio.play()
+      .then(() => {
+        audioDesbloqueio.pause();
+        audioDesbloqueio.currentTime = 0;
+      })
+      .catch(() => {});
+  }
+
+  const nivel = Math.floor(Math.random() * 101);
+
+  window.setTimeout(() => {
+    const resultado = escolherResultado(nivel);
+    atualizarInterface(nivel, resultado);
+
+    if (botao) {
+      botao.disabled = false;
+      botao.textContent = "AVERIGUAR NOVAMENTE";
     }
-});
+
+    analisando = false;
+  }, 2300);
+}
+
+function inicializarMaquina() {
+  const botao = elemento("start-button");
+  const botaoSom = elemento("sound-button");
+
+  if (botao) {
+    botao.addEventListener("click", averiguarResenha);
+  }
+
+  if (botaoSom) {
+    botaoSom.textContent = "🔊 SOM: LIGADO";
+    botaoSom.addEventListener("click", alternarSom);
+  }
+
+  const status = elemento("status");
+  const veredito = elemento("verdict");
+  const descricao = elemento("description");
+  const porcentagem = elemento("percent");
+  const barra = elemento("meter-fill");
+
+  if (status) status.textContent = "SISTEMA PRONTO";
+  if (veredito) veredito.textContent = "AGUARDANDO ANÁLISE";
+  if (descricao) {
+    descricao.textContent =
+      "Clique no botão para descobrir o nível de resenha.";
+  }
+  if (porcentagem) porcentagem.textContent = "0%";
+  if (barra) barra.style.width = "0%";
+
+  atualizarImagem(0);
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", inicializarMaquina);
+} else {
+  inicializarMaquina();
+}
