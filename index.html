@@ -1,0 +1,111 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computador — Averiguar Resenha</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <main class="machine">
+
+        <div class="topline">
+            <span class="led"></span>
+            SISTEMA DE ANÁLISE DE RESENHA
+            <span class="version">V. 0.0.3</span>
+        </div>
+
+        <header class="headline">
+            <p class="eyebrow">COMPUTADOR, LIGUE A</p>
+
+            <h1>
+                MÁQUINA DE<br>
+                <span>AVERIGUAR RESENHA</span>
+            </h1>
+
+            <p class="subtitle">e averigue possível resenha</p>
+        </header>
+
+        <section class="screen">
+
+            <div class="screen-label">
+                <span>MONITOR DE RESENHA</span>
+                <span id="status">AGUARDANDO COMANDO...</span>
+            </div>
+
+            <div class="screen-content">
+
+                <div class="face">
+                    <img
+                        id="resenha-image"
+                        src="imagens/resenha-baixa.jpg"
+                        alt="Imagem correspondente ao nível de resenha"
+                    >
+                </div>
+
+                <div class="readout">
+
+                    <p class="readout-title">VEREDITO OFICIAL</p>
+
+                    <h2 id="verdict">RESENHA<br>DESCONHECIDA</h2>
+
+                    <p id="description">
+                        Ligue a máquina para descobrir a verdade que ninguém pediu.
+                    </p>
+
+                    <div class="meter-label">
+                        <span>ÍNDICE DE RESENHA</span>
+                        <strong id="percent">???%</strong>
+                    </div>
+
+                    <div class="meter">
+                        <div id="meter-fill"></div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="screen-footer">
+                <span>⚠ EQUIPAMENTO NÃO CERTIFICADO</span>
+                <span>BR-RESENHA-666</span>
+            </div>
+
+        </section>
+
+        <div class="controls">
+
+            <div class="warning">
+                <span class="warning-icon">⚠</span>
+
+                <span>
+                    <strong>ATENÇÃO</strong><br>
+                    Resultados cientificamente duvidosos.
+                </span>
+            </div>
+
+            <button id="start-button">
+                ⏻ LIGAR E AVERIGUAR
+            </button>
+
+            <button id="sound-button" class="sound-button" aria-pressed="false">
+                🔊 SOM: DESLIGADO
+            </button>
+
+        </div>
+
+        <p id="machine-message" class="machine-message">
+            Aguardando alguém fazer besteira...
+        </p>
+
+        <footer>
+            COMPUTADOR LARANJÃO™ · A RESPONSABILIDADE É TODA SUA
+        </footer>
+
+    </main>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
